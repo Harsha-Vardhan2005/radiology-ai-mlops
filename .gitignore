@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+venv/
+.env
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Data (don’t push datasets)
+data/
+notebooks/
+
+# Models
+models/
+
+# MLflow logs (optional, if you don’t want experiment logs in repo)
+mlruns/
+
+# IDE configs
+.vscode/
+.idea/

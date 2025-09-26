@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chest X-Ray Pneumonia Detection</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="medical-bg"></div>
+    
+    <div class="container py-4">
+        <!-- Medical Header -->
+        <div class="medical-header text-center mb-4">
+            <div class="medical-logo">
+                <i class="fas fa-heartbeat"></i>
+                <i class="fas fa-x-ray"></i>
+            </div>
+            <h1 class="medical-title">RADIOLOGY AI SYSTEM</h1>
+            <div class="medical-subtitle">Pneumonia Detection & Analysis</div>
+            <div class="medical-line"></div>
+        </div>
+
+        <!-- Main Medical Panel -->
+        <div class="medical-panel mx-auto">
+            <div class="panel-header">
+                <div class="header-left">
+                    <i class="fas fa-upload"></i>
+                    <span>IMAGE UPLOAD</span>
+                </div>
+                <div class="header-right">
+                    <span class="status-indicator"></span>
+                    <span>READY</span>
+                </div>
+            </div>
+
+            <div class="panel-body">
+                <form method="post" action="/predict" enctype="multipart/form-data" id="uploadForm">
+                    <div class="medical-upload-zone" id="uploadArea">
+                        <div class="upload-display">
+                            <div class="scan-lines"></div>
+                            <i class="fas fa-file-medical upload-icon"></i>
+                            <h3>DROP X-RAY SCAN HERE</h3>
+                            <p>Supported: DICOM, JPG, PNG</p>
+                            <div class="upload-specs">
+                                <span>MAX: 10MB</span> | <span>MIN: 512x512px</span>
+                            </div>
+                            <input class="file-input" type="file" id="file" name="file" accept="image/*" required>
+                        </div>
+                        <div class="image-preview" id="imagePreview" style="display: none;">
+                            <div class="scan-lines-preview"></div>
+                            <img id="previewImg" src="" alt="X-Ray Preview">
+                            <div class="preview-info">
+                                <div class="file-details">
+                                    <span id="fileName" class="file-name"></span>
+                                    <button type="button" class="btn-remove" onclick="clearFile()">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-analyze w-100" id="analyzeBtn">
+                        <i class="fas fa-microscope me-2"></i>
+                        ANALYZE SCAN
+                    </button>
+                </form>
+
+                <!-- Medical Results -->
+                {% if prediction %}
+                <div class="medical-results mt-4">
+                    <div class="results-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>DIAGNOSTIC RESULTS</span>
+                        <div class="timestamp">{{ "now" }}</div>
+                    </div>
+                    <div class="results-body">
+                        <div class="diagnosis-panel">
+                            <div class="diagnosis-label">DIAGNOSIS</div>
+                            <div class="diagnosis-value {% if prediction == 'PNEUMONIA' %}positive{% else %}negative{% endif %}">
+                                {% if prediction == 'PNEUMONIA' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    PNEUMONIA DETECTED
+                                {% else %}
+                                    <i class="fas fa-check-circle"></i>
+                                    NO PNEUMONIA
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="confidence-panel">
+                            <div class="confidence-label">CONFIDENCE</div>
+                            <div class="confidence-display">
+                                <span class="confidence-number">{{ confidence }}</span>
+                                <div class="confidence-indicator {% if confidence > 0.8 %}high{% elif confidence > 0.6 %}medium{% else %}low{% endif %}">
+                                    {% if confidence > 0.8 %}HIGH{% elif confidence > 0.6 %}MEDIUM{% else %}LOW{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medical Chat System -->
+                <div class="medical-chat mt-4" id="chatSystem">
+                    <div class="chat-header">
+                        <i class="fas fa-robot"></i>
+                        <span>AI MEDICAL ASSISTANT</span>
+                        <div class="chat-status">
+                            <span class="status-indicator"></span>
+                            <span>ONLINE</span>
+                        </div>
+                    </div>
+                    <div class="chat-body">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="chat-message assistant">
+                                <div class="message-avatar">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-text">
+                                        Hello! I've analyzed your X-ray results. The diagnosis shows <strong>{{ prediction }}</strong> with a confidence score of <strong>{{ confidence }}</strong>. 
+                                        <br><br>Feel free to ask me any questions about your results, pneumonia, or what these findings mean. How can I help you understand your diagnosis better?
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <div class="chat-input-wrapper">
+                                <input type="text" id="chatInput" class="chat-input" placeholder="Ask me about your X-ray results..." maxlength="500">
+                                <button type="button" id="sendButton" class="chat-send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div class="chat-disclaimer">
+                                <i class="fas fa-info-circle"></i>
+                                AI assistant for informational purposes. Always consult healthcare professionals.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Medical Footer -->
+        <div class="medical-footer text-center mt-4">
+            <div class="warning-notice">
+                <i class="fas fa-shield-alt"></i>
+                FOR DIAGNOSTIC ASSISTANCE ONLY - REQUIRES PROFESSIONAL MEDICAL REVIEW
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File upload handling
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('file');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadDisplay = uploadArea.querySelector('.upload-display');
+        const previewImg = document.getElementById('previewImg');
+        const fileName = document.getElementById('fileName');
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                fileName.textContent = file.name;
+                uploadDisplay.style.display = 'none';
+                imagePreview.style.display = 'block';
+                
+                // Start scan animation on the preview area
+                const scanLinesPreview = document.querySelector('.scan-lines-preview');
+                scanLinesPreview.classList.add('active');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFile() {
+            fileInput.value = '';
+            uploadDisplay.style.display = 'block';
+            imagePreview.style.display = 'none';
+            previewImg.src = '';
+            fileName.textContent = '';
+            
+            // Stop all scan animations
+            const scanLines = document.querySelector('.scan-lines');
+            const scanLinesPreview = document.querySelector('.scan-lines-preview');
+            scanLines.classList.remove('active');
+            scanLinesPreview.classList.remove('active');
+        }
+
+        // Form submission with loading state but no page redirect
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent normal form submission
+            
+            const btn = document.getElementById('analyzeBtn');
+            const originalText = btn.innerHTML;
+            
+            // Show loading state
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>ANALYZING...';
+            btn.disabled = true;
+            
+            // Keep scan animation running during analysis
+            const scanLinesPreview = document.querySelector('.scan-lines-preview');
+            scanLinesPreview.classList.add('active');
+            
+            // Create FormData and submit via fetch
+            const formData = new FormData(this);
+            
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                // Parse the returned HTML to extract results
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const resultCard = doc.querySelector('.medical-results');
+                const chatSystem = doc.querySelector('.medical-chat');
+                
+                // Remove existing results if any
+                const existingResults = document.querySelector('.medical-results');
+                const existingChat = document.querySelector('.medical-chat');
+                if (existingResults) existingResults.remove();
+                if (existingChat) existingChat.remove();
+                
+                // Add new results and chat if prediction was made
+                if (resultCard) {
+                    document.querySelector('.panel-body').appendChild(resultCard);
+                    if (chatSystem) {
+                        document.querySelector('.panel-body').appendChild(chatSystem);
+                        initializeChat();
+                    }
+                    // Stop scan animation after results are shown
+                    scanLinesPreview.classList.remove('active');
+                }
+                
+                // Reset button
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                scanLinesPreview.classList.remove('active');
+                alert('Analysis failed. Please try again.');
+            });
+        });
+
+        // Chat functionality
+        function initializeChat() {
+            const chatInput = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const chatMessages = document.getElementById('chatMessages');
+
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (!message) return;
+
+                // Add user message to chat
+                addMessageToChat(message, 'user');
+                chatInput.value = '';
+                sendButton.disabled = true;
+                sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                // Send to backend
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        addMessageToChat('Sorry, I encountered an error. Please try again.', 'assistant');
+                    } else {
+                        addMessageToChat(data.response, 'assistant');
+                    }
+                })
+                .catch(error => {
+                    console.error('Chat error:', error);
+                    addMessageToChat('Connection error. Please check your internet and try again.', 'assistant');
+                })
+                .finally(() => {
+                    sendButton.disabled = false;
+                    sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                });
+            }
+
+            function addMessageToChat(message, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${sender}`;
+                
+                const avatar = sender === 'user' ? 
+                    '<i class="fas fa-user"></i>' : 
+                    '<i class="fas fa-user-md"></i>';
+
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        ${avatar}
+                    </div>
+                    <div class="message-content">
+                        <div class="message-text">${message}</div>
+                    </div>
+                `;
+
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

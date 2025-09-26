@@ -1,0 +1,710 @@
+/* Medical Dark Theme */
+body {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: #0a0e1a;
+    color: #e0e6ed;
+    overflow-x: hidden;
+}
+
+.medical-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(0, 255, 127, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(0, 191, 255, 0.1) 0%, transparent 50%),
+        linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+    z-index: -1;
+}
+
+.medical-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(90deg, rgba(0, 255, 127, 0.03) 1px, transparent 1px),
+        linear-gradient(rgba(0, 255, 127, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.3;
+}
+
+/* Medical Header */
+.medical-header {
+    padding: 2rem 0;
+}
+
+.medical-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.medical-logo i {
+    font-size: 2.5rem;
+    color: #00ff7f;
+    text-shadow: 0 0 20px rgba(0, 255, 127, 0.5);
+}
+
+.medical-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 2px;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.medical-subtitle {
+    color: #00bfff;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    margin-top: 0.5rem;
+}
+
+.medical-line {
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff7f, transparent);
+    margin: 1rem auto;
+    box-shadow: 0 0 10px rgba(0, 255, 127, 0.5);
+}
+
+/* Medical Panel */
+.medical-panel {
+    max-width: 800px;
+    background: rgba(26, 31, 46, 0.9);
+    border: 1px solid rgba(0, 255, 127, 0.3);
+    border-radius: 12px;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 127, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    background: rgba(0, 255, 127, 0.1);
+    border-bottom: 1px solid rgba(0, 255, 127, 0.3);
+    border-radius: 12px 12px 0 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-weight: 600;
+    color: #00ff7f;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #00bfff;
+    letter-spacing: 1px;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    background: #00ff7f;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff7f;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.panel-body {
+    padding: 2rem;
+}
+
+/* Medical Upload Zone */
+.medical-upload-zone {
+    border: 2px dashed rgba(0, 255, 127, 0.4);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    margin-bottom: 2rem;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.medical-upload-zone:hover {
+    border-color: #00ff7f;
+    background: rgba(0, 255, 127, 0.05);
+    box-shadow: 0 0 20px rgba(0, 255, 127, 0.2);
+}
+
+.medical-upload-zone.drag-active {
+    border-color: #00bfff;
+    background: rgba(0, 191, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 191, 255, 0.3);
+}
+
+.upload-display {
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.scan-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(0, 255, 127, 0.1) 48%,
+        rgba(0, 255, 127, 0.2) 50%,
+        rgba(0, 255, 127, 0.1) 52%,
+        transparent 100%
+    );
+    background-size: 100% 20px;
+    opacity: 0;
+}
+
+.scan-lines.active {
+    animation: scan 3s ease-in-out infinite;
+}
+
+@keyframes scan {
+    0%, 100% { opacity: 0; transform: translateY(-100%); }
+    50% { opacity: 1; transform: translateY(100%); }
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #00ff7f;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 127, 0.5));
+}
+
+.upload-display h3 {
+    color: #ffffff;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+}
+
+.upload-display p {
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.upload-specs {
+    color: #6b7280;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Image Preview */
+.image-preview {
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+}
+
+.scan-lines-preview {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(0, 255, 127, 0.1) 48%,
+        rgba(0, 255, 127, 0.2) 50%,
+        rgba(0, 255, 127, 0.1) 52%,
+        transparent 100%
+    );
+    background-size: 100% 20px;
+    opacity: 0;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.scan-lines-preview.active {
+    animation: scan 3s ease-in-out infinite;
+}
+
+.image-preview img {
+    max-width: 300px;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 255, 127, 0.3);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.preview-info {
+    margin-top: 1rem;
+}
+
+.file-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 255, 127, 0.2);
+}
+
+.file-name {
+    color: #00bfff;
+    font-weight: 500;
+}
+
+.btn-remove {
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #ff6b7a;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-remove:hover {
+    background: rgba(220, 53, 69, 0.4);
+}
+
+/* Analyze Button */
+.btn-analyze {
+    background: linear-gradient(135deg, #00ff7f 0%, #00bfff 100%);
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    color: #0a0e1a;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 255, 127, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-analyze:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 255, 127, 0.6);
+}
+
+.btn-analyze:disabled {
+    opacity: 0.7;
+    transform: none;
+}
+
+.btn-analyze::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-analyze:hover::before {
+    left: 100%;
+}
+
+/* Medical Results */
+.medical-results {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 127, 0.3);
+    border-radius: 8px;
+    animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(0, 255, 127, 0.1);
+    border-bottom: 1px solid rgba(0, 255, 127, 0.2);
+    border-radius: 8px 8px 0 0;
+}
+
+.results-header span {
+    font-weight: 600;
+    color: #00ff7f;
+    letter-spacing: 1px;
+}
+
+.timestamp {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.results-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+/* Diagnosis Panel */
+.diagnosis-panel, .confidence-panel {
+    text-align: center;
+}
+
+.diagnosis-label, .confidence-label {
+    color: #9ca3af;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+}
+
+.diagnosis-value {
+    padding: 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.diagnosis-value.positive {
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #ff6b7a;
+}
+
+.diagnosis-value.negative {
+    background: rgba(40, 167, 69, 0.2);
+    border: 1px solid rgba(40, 167, 69, 0.5);
+    color: #28a745;
+}
+
+/* Confidence Panel */
+.confidence-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.confidence-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #00bfff;
+    text-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
+}
+
+.confidence-indicator {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.confidence-indicator.high {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.5);
+}
+
+.confidence-indicator.medium {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.5);
+}
+
+.confidence-indicator.low {
+    background: rgba(220, 53, 69, 0.2);
+    color: #ff6b7a;
+    border: 1px solid rgba(220, 53, 69, 0.5);
+}
+
+/* Medical Chat System */
+.medical-chat {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 127, 0.3);
+    border-radius: 8px;
+    animation: slideIn 0.5s ease;
+    overflow: hidden;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: rgba(0, 191, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+}
+
+.chat-header span {
+    font-weight: 600;
+    color: #00bfff;
+    letter-spacing: 1px;
+}
+
+.chat-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #00ff7f;
+    letter-spacing: 1px;
+}
+
+.chat-body {
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 255, 127, 0.3) rgba(0, 0, 0, 0.2);
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 127, 0.3);
+    border-radius: 3px;
+}
+
+.chat-message {
+    display: flex;
+    gap: 0.8rem;
+    animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-message.user {
+    flex-direction: row-reverse;
+}
+
+.chat-message.user .message-content {
+    background: rgba(0, 191, 255, 0.2);
+    border: 1px solid rgba(0, 191, 255, 0.4);
+}
+
+.message-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.chat-message.assistant .message-avatar {
+    background: rgba(0, 255, 127, 0.2);
+    border: 1px solid rgba(0, 255, 127, 0.4);
+    color: #00ff7f;
+}
+
+.chat-message.user .message-avatar {
+    background: rgba(0, 191, 255, 0.2);
+    border: 1px solid rgba(0, 191, 255, 0.4);
+    color: #00bfff;
+}
+
+.message-content {
+    flex: 1;
+    max-width: 80%;
+}
+
+.message-text {
+    background: rgba(0, 255, 127, 0.1);
+    border: 1px solid rgba(0, 255, 127, 0.2);
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    color: #e0e6ed;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.chat-input-container {
+    padding: 1rem;
+    border-top: 1px solid rgba(0, 255, 127, 0.2);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.chat-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.chat-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 255, 127, 0.3);
+    border-radius: 20px;
+    padding: 0.8rem 1rem;
+    color: #e0e6ed;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.chat-input:focus {
+    border-color: #00ff7f;
+    box-shadow: 0 0 10px rgba(0, 255, 127, 0.3);
+}
+
+.chat-input::placeholder {
+    color: #9ca3af;
+}
+
+.chat-send-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ff7f 0%, #00bfff 100%);
+    border: none;
+    color: #0a0e1a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.chat-send-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 255, 127, 0.4);
+}
+
+.chat-send-btn:disabled {
+    opacity: 0.6;
+    transform: none;
+    cursor: not-allowed;
+}
+
+.chat-disclaimer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: #6b7280;
+    justify-content: center;
+}
+
+/* Responsive chat */
+@media (max-width: 768px) {
+    .chat-body {
+        height: 300px;
+    }
+    
+    .message-content {
+        max-width: 85%;
+    }
+    
+    .chat-input-wrapper {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .chat-send-btn {
+        align-self: flex-end;
+    }
+}
+
+.warning-notice {
+    color: #ffc107;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 193, 7, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem !important;
+    }
+    
+    .medical-title {
+        font-size: 2rem;
+    }
+    
+    .panel-header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .panel-body {
+        padding: 1rem;
+    }
+    
+    .results-body {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .upload-display {
+        padding: 2rem 1rem;
+    }
+}

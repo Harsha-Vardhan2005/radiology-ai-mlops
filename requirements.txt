@@ -1,0 +1,34 @@
+# Core
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+
+# Deep Learning
+torch
+torchvision
+torchaudio
+
+# Experiment Tracking
+mlflow
+
+# API & Backend
+fastapi
+uvicorn[standard]
+python-multipart
+
+# LLM Integration
+groq  # if you’re using Groq API for LLM
+# openai  # uncomment if you ever switch to OpenAI API
+
+# Image Processing
+Pillow
+opencv-python
+
+# Visualization / Explainability
+torchcam
+
+# Optional (if running notebooks)
+jupyter
+notebook
