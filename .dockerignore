@@ -1,14 +1,64 @@
+# Git and version control
+.git
+.gitignore
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.Python
 *.so
+.venv/
 venv/
-.env
-.ipynb_checkpoints/
+env/
+
+# Data and models (will be downloaded from S3)
 data/
 notebooks/
 models/checkpoints/
+models/*.pth
 mlruns/
+
+# Development files
+.env
+.env.example
+*.md
+README.md
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+api/uploads/
+
+# Documentation
+docs/
+
+# Docker
+docker-compose.override.yml
+Dockerfile.dev
+
+# Testing
+tests/
+.pytest_cache/
