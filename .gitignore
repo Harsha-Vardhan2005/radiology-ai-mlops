@@ -22,6 +22,10 @@ models/
 # MLflow logs (optional, if you don’t want experiment logs in repo)
 mlruns/
 
+# But keep src/data and src/models
+!/src/data/
+!/src/models/
+
 # IDE configs
 .vscode/
 .idea/

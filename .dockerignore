@@ -1,64 +1,48 @@
-# Git and version control
-.git
-.gitignore
+# Exclude heavy model files (download from S3 instead)
+models/
+*.pth
+*.pt
+*.ckpt
 
-# Python
+# Exclude data files
+data/
+datasets/
+*.csv
+
+# Exclude notebooks and experiments
+notebooks/
+*.ipynb
+mlruns/
+.mlflow/
+
+# Exclude development files
+.git/
+.vscode/
+.idea/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
 *.so
-.venv/
-venv/
-env/
-
-# Data and models (will be downloaded from S3)
-data/
-notebooks/
-models/checkpoints/
-models/*.pth
-mlruns/
-
-# Development files
-.env
-.env.example
-*.md
-README.md
-.pytest_cache/
 .coverage
-htmlcov/
+.pytest_cache/
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Jupyter notebooks
-*.ipynb
-.ipynb_checkpoints/
-
-# Logs
+# Exclude logs and uploads
 logs/
+api/uploads/
 *.log
 
-# Temporary files
-tmp/
-temp/
-api/uploads/
+# Exclude environment files
+.env
+.env.*
 
-# Documentation
+# Exclude documentation
+README.md
 docs/
+*.md
 
-# Docker
-docker-compose.override.yml
-Dockerfile.dev
-
-# Testing
-tests/
-.pytest_cache/
+# Exclude Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore

@@ -1,44 +1,34 @@
-# Core
-numpy
-pandas
-matplotlib
-seaborn
-scikit-learn
+# Core FastAPI
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+jinja2==3.1.2
 
-# Deep Learning
-torch
-torchvision
-torchaudio
+# PyTorch CPU-only versions (install separately)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.0+cpu
+torchvision==0.16.0+cpu
 
-# Experiment Tracking
-mlflow
+# Image processing
+Pillow==10.1.0
 
-# API & Backend
-fastapi
-uvicorn[standard]
-python-multipart
-jinja2
+# AWS & Cloud
+boto3==1.34.0
+python-dotenv==1.0.0
 
-# AWS Integration
-boto3
-python-dotenv
+# Redis caching
+redis==5.0.1
 
-# LLM Integration
-groq  # if you're using Groq API for LLM
-# openai  # uncomment if you ever switch to OpenAI API
+# ML utilities (lightweight)
+numpy==1.24.4
+scikit-learn==1.3.2
 
-# Image Processing
-Pillow
-opencv-python
+# API & Chat
+groq
+requests==2.31.0
 
-# Visualization / Explainability
-torchcam
+# MLflow (optional - comment out if not using)
+mlflow==2.8.1
 
-# Optional (if running notebooks)
-jupyter
-notebook
-
-# Production & Monitoring (Optional but recommended)
-# gunicorn  # for production WSGI server
-# prometheus-client  # for metrics
-# psutil  # for system monitoring
+# Production utilities
+gunicorn==21.2.0

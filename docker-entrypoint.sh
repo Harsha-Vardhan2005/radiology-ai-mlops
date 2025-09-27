@@ -17,8 +17,8 @@ echo "✅ Environment variables validated"
 # Create necessary directories
 mkdir -p /app/models /app/api/uploads /app/logs
 
-# Set proper permissions
-chmod 755 /app/models /app/api/uploads /app/logs
+# Set proper permissions (ignore errors for mounted volumes)
+chmod 755 /app/models /app/api/uploads /app/logs 2>/dev/null || echo "⚠️  Warning: Could not set permissions on some directories (likely mounted volumes - this is normal)"
 
 echo "📁 Directories created"
 
@@ -36,6 +36,18 @@ try:
     print('✅ AWS S3 connection successful')
 except Exception as e:
     print(f'❌ AWS S3 connection failed: {e}')
+    exit(1)
+"
+
+# Pre-download model to avoid multiple downloads
+echo "📥 Pre-downloading model..."
+python -c "
+from api.predict_service import download_model_from_s3
+try:
+    download_model_from_s3()
+    print('✅ Model pre-downloaded successfully')
+except Exception as e:
+    print(f'❌ Model download failed: {e}')
     exit(1)
 "
 
