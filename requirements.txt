@@ -17,9 +17,14 @@ mlflow
 fastapi
 uvicorn[standard]
 python-multipart
+jinja2
+
+# AWS Integration
+boto3
+python-dotenv
 
 # LLM Integration
-groq  # if you’re using Groq API for LLM
+groq  # if you're using Groq API for LLM
 # openai  # uncomment if you ever switch to OpenAI API
 
 # Image Processing
@@ -32,3 +37,8 @@ torchcam
 # Optional (if running notebooks)
 jupyter
 notebook
+
+# Production & Monitoring (Optional but recommended)
+# gunicorn  # for production WSGI server
+# prometheus-client  # for metrics
+# psutil  # for system monitoring

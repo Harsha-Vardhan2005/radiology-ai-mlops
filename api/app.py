@@ -10,6 +10,11 @@ import json
 from groq import Groq
 from .predict_service import load_model, predict_image
 from dotenv import load_dotenv
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Chest X-Ray Pneumonia Detection")
 
@@ -19,21 +24,29 @@ app.mount("/static", StaticFiles(directory="api/static"), name="static")
 # Templates
 templates = Jinja2Templates(directory="api/templates")
 
-# Load model once
+# Load environment variables
+load_dotenv()
+
+# Initialize model (will download from S3 automatically)
 MODEL_TYPE = "resnet50"
-CHECKPOINT_PATH = "models/checkpoints/ResNet50_best.pth"
-model = load_model(model_type=MODEL_TYPE, checkpoint_path=CHECKPOINT_PATH)
+try:
+    logger.info("Loading model from S3...")
+    model = load_model(model_type=MODEL_TYPE)  # No checkpoint_path needed - will auto-download
+    logger.info("Model loaded successfully!")
+except Exception as e:
+    logger.error(f"Failed to load model: {str(e)}")
+    raise RuntimeError(f"Model loading failed: {str(e)}")
 
 UPLOAD_FOLDER = "api/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Groq client - Replace with your actual API key
-load_dotenv()
+# Groq client
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
-    raise RuntimeError("Missing GROQ_API_KEY. Please set it in your .env file.")
-
-client = Groq(api_key=GROQ_API_KEY)
+    logger.warning("GROQ_API_KEY not found. Chat functionality will be disabled.")
+    client = None
+else:
+    client = Groq(api_key=GROQ_API_KEY)
 
 # Store current session data (in production, use proper session management)
 current_session = {
@@ -41,6 +54,16 @@ current_session = {
     "confidence": None,
     "image_base64": None
 }
+
+# Health check endpoint
+@app.get("/health")
+def health_check():
+    """Health check endpoint for deployment monitoring"""
+    return {
+        "status": "healthy",
+        "model_loaded": model is not None,
+        "device": "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
+    }
 
 # Home page
 @app.get("/", response_class=HTMLResponse)
@@ -50,37 +73,64 @@ def home(request: Request):
 # Prediction endpoint
 @app.post("/predict", response_class=HTMLResponse)
 async def predict(request: Request, file: UploadFile = File(...)):
-    # Save uploaded file
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-    with open(file_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+    try:
+        # Validate file type
+        if not file.content_type.startswith('image/'):
+            return templates.TemplateResponse("index.html", {
+                "request": request,
+                "error": "Please upload a valid image file"
+            })
+        
+        # Save uploaded file
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+        
+        logger.info(f"Processing image: {file.filename}")
+        
+        # Convert image to base64 for LLM (if chat is enabled)
+        img_base64 = None
+        if client:  # Only if Groq is available
+            with open(file_path, "rb") as img_file:
+                img_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+        
+        # Make prediction
+        pred_class, confidence = predict_image(file_path, model)
+        
+        # Store session data for chat
+        current_session.update({
+            "prediction": pred_class,
+            "confidence": confidence,
+            "image_base64": img_base64
+        })
+        
+        # Remove uploaded file
+        os.remove(file_path)
+        
+        logger.info(f"Prediction completed: {pred_class} ({confidence:.4f})")
+        
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "prediction": pred_class,
+            "confidence": round(confidence, 4),
+            "chat_enabled": client is not None
+        })
     
-    # Convert image to base64 for LLM
-    with open(file_path, "rb") as img_file:
-        img_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-    
-    # Make prediction
-    pred_class, confidence = predict_image(file_path, model)
-    
-    # Store session data for chat
-    current_session.update({
-        "prediction": pred_class,
-        "confidence": confidence,
-        "image_base64": img_base64
-    })
-    
-    # Remove uploaded file
-    os.remove(file_path)
-    
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "prediction": pred_class,
-        "confidence": round(confidence, 4)
-    })
+    except Exception as e:
+        logger.error(f"Error during prediction: {str(e)}")
+        if 'file_path' in locals() and os.path.exists(file_path):
+            os.remove(file_path)
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "error": f"Prediction failed: {str(e)}"
+        })
 
 # Chat endpoint
 @app.post("/chat")
 async def chat_with_llm(request: Request):
+    if not client:
+        return JSONResponse({"error": "Chat service not available - missing GROQ_API_KEY"})
+    
     data = await request.json()
     user_message = data.get("message", "")
     
@@ -154,7 +204,7 @@ Remember: This is AI-assisted diagnosis tool, not a replacement for professional
         })
         
     except Exception as e:
-        print(f"Error in chat: {str(e)}")
+        logger.error(f"Error in chat: {str(e)}")
         # Fallback to text-only model if vision fails
         try:
             completion = client.chat.completions.create(
@@ -174,6 +224,7 @@ Remember: This is AI-assisted diagnosis tool, not a replacement for professional
                 "confidence": current_session["confidence"]
             })
         except Exception as fallback_error:
+            logger.error(f"Chat fallback failed: {str(fallback_error)}")
             return JSONResponse({
                 "error": f"Chat service unavailable: {str(fallback_error)}"
             })
@@ -187,3 +238,13 @@ async def clear_session():
         "image_base64": None
     })
     return JSONResponse({"status": "cleared"})
+
+# Model info endpoint (useful for monitoring)
+@app.get("/model-info")
+def model_info():
+    """Get information about the loaded model"""
+    return {
+        "model_type": MODEL_TYPE,
+        "classes": ["NORMAL", "PNEUMONIA"],
+        "device": "cuda" if os.environ.get("CUDA_VISIBLE_DEVICES") else "cpu"
+    }
