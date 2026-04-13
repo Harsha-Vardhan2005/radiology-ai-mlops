@@ -132,12 +132,13 @@ Manual analysis of chest X-rays is time-consuming and requires specialized exper
 - **Split**: 80% training, 10% validation, 10% testing
 
 ### Model Comparison
+Inference times measured on CPU, tested on around 624 images
 
 | Model | Accuracy | Precision | Recall | F1-Score | Inference Time |
 |-------|----------|-----------|---------|----------|----------------|
-| Baseline CNN | 87.2% | 0.85 | 0.89 | 0.87 | 0.45s |
-| ResNet50 | **93.4%** | **0.92** | **0.94** | **0.93** | **0.38s** |
-| Vision Transformer | 91.8% | 0.90 | 0.93 | 0.91 | 0.52s |
+| Baseline CNN | 87.2% | 0.85 | 0.89 | 0.87 | 10ms |
+| ResNet50 | **93.4%** | **0.92** | **0.94** | **0.93** | **97ms** |
+| Vision Transformer | 91.8% | 0.90 | 0.93 | 0.91 | 289s |
 
 *ResNet50 selected as production model for optimal accuracy-speed balance*
 
